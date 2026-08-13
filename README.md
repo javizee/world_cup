@@ -4,7 +4,7 @@ This project explores historical FIFA World Cup data to examine which countries 
 
 ## Key Findings
 
-Brazil has been the most successful World Cup nation with **5 titles**, followed by Germany and Italy with **4 each**. Hosting also appears to provide a significant advantage: host nations won **68.75%** of their matches compared with **39.03%** for non-host teams. Even after accounting for historical team strength, hosts had about **3.1 times the odds of winning**. Scoring increased after the low-scoring 1990 World Cup, but goals per match have remained relatively stable in the modern era.
+Brazil has been the most successful World Cup nation with **5 titles**, followed by Germany and Italy with **4 each**. Hosting also appears to provide a significant advantage: host nations won **68.75%** of their matches compared with **39.03%** for non-host teams. Even after accounting for historical team strength, hosts had about **3.1 times the odds of winning**. 
 
 ## Host Advantage
 
