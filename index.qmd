@@ -1,0 +1,166 @@
+---
+title: "index"
+format: html
+editor: visual
+---
+
+## Setup
+
+```{r}
+library(tidyverse)
+source("R/functions.R")
+
+# Create image folder if it does not already exist
+dir.create("img", showWarnings = FALSE)
+
+wcmatches  <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2022/2022-11-29/wcmatches.csv')
+worldcups  <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2022/2022-11-29/worldcups.csv')
+```
+
+## Inspect Both Tables
+
+Each row in `wcmatches` represents one World Cup match, while each row in `worldcups` represents one World Cup tournament.
+
+```{r}
+glimpse(wcmatches)
+glimpse(worldcups)
+
+# How many tournaments? How many matches?
+worldcups %>% count()
+wcmatches %>% count()
+
+# What years are covered?
+worldcups %>% summarise(min(year), max(year))
+
+# What stages exist?
+wcmatches %>% count(stage)
+```
+
+## Which Countries Have Dominated?
+
+```{r}
+titles <- count_titles(worldcups)
+
+titles
+```
+
+```{r}
+titles_plot <- plot_titles(titles)
+
+titles_plot
+
+ggsave(
+  "img/titles-by-country.png",
+  plot = titles_plot,
+  width = 8,
+  height = 5,
+  dpi = 300
+)
+```
+
+Brazil has won the most World Cups with five titles, followed by Germany and Italy with four each. These three countries account for 13 of the 21 World Cups in the dataset, showing that a small number of countries have dominated the tournament historically.
+
+## Does Hosting Help?
+
+```{r}
+wc_joined <- join_match_context(wcmatches, worldcups)
+
+glimpse(wc_joined)
+```
+
+```{r}
+host_matches <- flag_host_matches(wc_joined)
+
+team_matches <- create_team_matches(wc_joined)
+
+host_summary <- team_matches %>%
+  group_by(is_host) %>%
+  summarise(
+    games = n(),
+    wins = sum(won),
+    win_rate = mean(won)
+  )
+
+host_summary
+```
+
+
+
+```{r}
+host_win_plot <- plot_host_win_rates(host_summary)
+
+host_win_plot
+```
+Host nations won 68.75% of their matches, suggesting that hosting may provide an advantage. However, a statistical comparison with those teams' performance when they were not hosting would be needed to determine whether the difference is significant.
+
+### Testing the Host Advantage
+
+```{r}
+host_test_data <- team_matches %>%
+  group_by(is_host) %>%
+  summarise(
+    wins = sum(won),
+    games = n()
+  )
+
+prop.test(
+  x = host_test_data$wins,
+  n = host_test_data$games
+)
+```
+
+Host nations won 68.75% of their matches compared with 39.03% for non-host teams. A two-proportion test found that this difference was statistically significant (p \< 0.001), providing evidence that host nations have performed better at the World Cup.
+
+### Accounting for Team Strength
+
+```{r}
+team_strength <- team_matches %>%
+  filter(!is_host) %>%
+  group_by(team) %>%
+  summarise(
+    historical_win_rate = mean(won),
+    .groups = "drop"
+  )
+team_matches <- team_matches %>%
+  left_join(team_strength, by = "team")
+
+model <- glm(
+  won ~ is_host + historical_win_rate,
+  data = team_matches,
+  family = binomial
+)
+
+summary(model)
+```
+
+Host nations won 68.75% of their matches compared with 39.03% for non-host teams. This difference was statistically significant (p \< 0.001). To determine whether this was simply because host countries tend to be stronger teams, a logistic regression was used to account for each country's historical win rate. Hosting remained statistically significant (p \< 0.001), with host teams having about 3.1 times the odds of winning compared with non-host teams with the same historical win rate. This suggests that hosting itself is associated with a meaningful advantage at the World Cup.
+
+### Host Advantage Over Time
+
+```{r}
+host_by_year <- host_performance_by_year(team_matches)
+
+host_by_year
+```
+
+```{r}
+host_advantage_plot <- plot_host_advantage_over_time(host_by_year)
+
+host_advantage_plot
+
+ggsave(
+  "img/host-advantage-over-time.png",
+  plot = host_advantage_plot,
+  width = 8,
+  height = 5,
+  dpi = 300
+)
+```
+
+Host win rates have varied considerably across World Cups, with no clear upward or downward trend over time. The only host team with a 100% win rate in the modern era is France in 1998 which is one of the strongest teams in history, so some of the variation in host performance may be explained by the strength of the host nation rather than hosting alone.
+
+# Conclusion
+
+Overall, the results suggest that hosting the World Cup is associated with a meaningful competitive advantage. Host nations won 68.75% of their matches compared with 39.03% for non-host teams, and this difference was statistically significant. Even after accounting for historical team strength, host nations still had about 3.1 times the odds of winning. However, the size of the host advantage has varied considerably between tournaments, with no clear trend over time.
+
+These results suggest that team strength alone does not fully explain why hosts have historically performed well. Factors such as home crowd support, familiar playing conditions, reduced travel, and other advantages of playing at home could help explain the difference. However, this analysis shows an association rather than causation, and future analysis could account for factors such as opponent strength and tournament format.
