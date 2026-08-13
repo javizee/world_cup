@@ -10,13 +10,13 @@ Hosting also appears to provide a significant advantage. Host nations won **68.7
 
 ## Host vs. Non-Host Performance
 
-![Host vs. Non-Host Win Rate](img/host-win-rate.png)
+![Host vs. Non-Host Win Rate](img/host-win-rates.png)
 
 Host nations had a substantially higher match win rate than non-host nations. While this provides evidence of a host advantage, some of the difference could be explained by historically strong soccer nations also being selected as hosts.
 
 ## Do Countries Perform Better When They Host?
 
-![Host Countries vs. Their Non-Hosting Performance](img/host-vs-own-performance.png)
+![Host Countries vs. Their Non-Hosting Performance](img/host-vs-own-nonhost.png)
 
 Comparing countries against their **own performance when not hosting** provides stronger evidence of a host advantage. Most countries had a higher match win rate when hosting the World Cup than when playing in World Cups hosted elsewhere.
 
