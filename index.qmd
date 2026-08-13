@@ -84,14 +84,13 @@ host_summary <- team_matches %>%
 host_summary
 ```
 
-
-
 ```{r}
 host_win_plot <- plot_host_win_rates(host_summary)
 
 host_win_plot
 ```
-Host nations won 68.75% of their matches, suggesting that hosting may provide an advantage. However, a statistical comparison with those teams' performance when they were not hosting would be needed to determine whether the difference is significant.
+
+Host nations won 68.75% of their matches, suggesting that hosting may provide an advantage. The analyses below test whether this difference is statistically significant and whether host countries also outperform their own results from World Cups played elsewhere.
 
 ### Testing the Host Advantage
 
@@ -159,6 +158,59 @@ ggsave(
 
 Host win rates have varied considerably across World Cups, with no clear upward or downward trend over time. The only host team with a 100% win rate in the modern era is France in 1998 which is one of the strongest teams in history, so some of the variation in host performance may be explained by the strength of the host nation rather than hosting alone.
 
+### Do Host Nations Advance Farther?
+
+Winning individual matches is one way to measure host advantage, but tournament progress provides another view. This analysis compares how often host and non-host teams reach the quarterfinals, semifinals, and final.
+
+```{r}
+tournament_progress <- summarize_tournament_progress(team_matches)
+
+host_advancement <- summarize_host_advancement(tournament_progress)
+
+host_advancement
+```
+
+```{r}
+host_advancement_plot <- plot_host_advancement(host_advancement)
+
+host_advancement_plot
+
+ggsave(
+  "img/host-tournament-advancement.png",
+  plot = host_advancement_plot,
+  width = 8,
+  height = 5,
+  dpi = 300
+)
+```
+
+This comparison shows whether the host advantage extends beyond individual match wins to deeper tournament runs. If host nations reach the later rounds at higher rates, it provides additional evidence that hosting is associated with stronger overall World Cup performance.
+
+### Do Countries Perform Better When They Host?
+
+The earlier host-versus-non-host comparison includes many different countries, so part of the difference could come from historically strong teams being selected as hosts. A stronger comparison is to look only at countries that have hosted and compare their match win rate while hosting with their own win rate when playing in other World Cups.
+
+```{r}
+host_self_comparison <- compare_host_to_own_nonhost(team_matches)
+
+host_self_comparison
+```
+
+```{r}
+host_self_plot <- plot_host_vs_own_nonhost(host_self_comparison)
+
+host_self_plot
+
+ggsave(
+  "img/host-vs-own-nonhost.png",
+  plot = host_self_plot,
+  width = 8,
+  height = 6,
+  dpi = 300
+)
+```
+
+Host countries generally performed better when hosting the World Cup than when competing abroad. For most countries, the hosting win rate was higher than their non-hosting win rate, with particularly large increases for countries such as Uruguay, England, Sweden, and South Korea. This provides stronger evidence of a host advantage because each country is being compared with its own historical performance rather than with completely different teams. However, hosting did not improve performance for every country, suggesting that home-field advantage helps but does not guarantee success.
 # Conclusion
 
 Overall, the results suggest that hosting the World Cup is associated with a meaningful competitive advantage. Host nations won 68.75% of their matches compared with 39.03% for non-host teams, and this difference was statistically significant. Even after accounting for historical team strength, host nations still had about 3.1 times the odds of winning. However, the size of the host advantage has varied considerably between tournaments, with no clear trend over time.
